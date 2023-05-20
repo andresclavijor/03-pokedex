@@ -14,7 +14,7 @@ import { InjectModel } from '@nestjs/mongoose';
 export class PokemonService {
   constructor(
     @InjectModel(Pokemon.name)
-    private readonly pokemonModel: Model<Pokemon>,
+    public pokemonModel: Model<Pokemon>,
   ) {}
 
   private handleExceptions(error: any) {
@@ -35,6 +35,16 @@ export class PokemonService {
       createPokemonDto.name = createPokemonDto.name.toLowerCase();
       const pokemon = await this.pokemonModel.create(createPokemonDto);
       return pokemon;
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+
+  async createArray(createPokemonDto: CreatePokemonDto[]) {
+    try {
+      createPokemonDto.forEach(pokemon => pokemon.name.toLowerCase());
+      const pokemons = await this.pokemonModel.insertMany<CreatePokemonDto[]>(createPokemonDto);
+      return pokemons;
     } catch (error) {
       this.handleExceptions(error);
     }
@@ -91,9 +101,11 @@ export class PokemonService {
   async remove(id: string) {
     // const pokemon: Pokemon = await this.findOne(id);
     // await pokemon.deleteOne();
-    const { deletedCount, acknowledged } = await this.pokemonModel.deleteOne({ _id: id });
-    if(deletedCount === 0){
-      throw new NotFoundException(`Pokemon With id ${id} not found`)
+    const { deletedCount, acknowledged } = await this.pokemonModel.deleteOne({
+      _id: id,
+    });
+    if (deletedCount === 0) {
+      throw new NotFoundException(`Pokemon With id ${id} not found`);
     }
     return;
   }
