@@ -17,6 +17,8 @@ async function bootstrap() {
       },
     }),
   );
+  console.log("PORT",process.env.PORT);
+  console.log("MONGODB",process.env.MONGODB);
 
   await app.listen(process.env.PORT);
   console.log(`App running 🚀 on PORT: ${process.env.PORT}`);
